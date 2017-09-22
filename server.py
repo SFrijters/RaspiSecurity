@@ -1,56 +1,71 @@
+# -*- coding: utf-8 -*-
+
+import os
 import socket
 import subprocess
+import signal
 from flask import Flask, render_template
 app = Flask(__name__)
 
-# keep runnign process global
+import log
+import logging
+logger = logging.getLogger("server")
+logger.addHandler(logging.NullHandler())
+
+# Stop HTTP request spam
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
 proc = None
+
+def shutdown(*args):
+    global proc
+    logger.info("Stopping camera")
+    proc.kill()
+    logger.info("Camera process id = %d killed!", proc.pid)
+    logger.info("Stopping server")
+    os._exit(0)
 
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     return s.getsockname()[0]
 
-
 @app.route("/")
 def hello():
     return render_template("index.html")
 
-
 @app.route("/start", methods=['GET', 'POST'])
-def start_talkingraspi():
+def start_camera():
     global proc
-    print(" > Start talkingraspi!")
-    proc = subprocess.Popen(["python", "pi_surveillance.py", "-c", "conf.json"])
-    print(" > Process id {}".format(proc.pid))
-    return "Started!"
-
+    logger.info("Starting camera")
+    proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"])
+    logger.info("Camera process id = %d", proc.pid)
+    return "Start camera"
 
 @app.route("/stop", methods=['GET', 'POST'])
-def stop_talkingraspi():
+def stop_camera():
     global proc
-    print(" > Stop talkingraspi!")
-    # subprocess.call(["kill", "-9", "%d" % proc.pid])
+    logger.info("Stopping camera")
     proc.kill()
-    print(" > Process {} killed!".format(proc.pid))
-    return "Stopped!"
-
+    logger.info("Camera process id = %d killed!", proc.pid)
+    return "Stop camera"
 
 @app.route("/status", methods=['GET', 'POST'])
-def status_talkingraspi():
+def status_camera():
     global proc
     if proc is None:
-        print(" > Talkingraspi is resting")
-        return "Resting!"
+        logger.debug("Camera is inactive")
+        return "Inactive"
     if proc.poll() is None:
-        print(" > Talking raspi is running (Process {})!".format(proc.pid))
-        return "Running!"
+        logger.debug("Camera running as pid = %d", proc.pid)
+        return "Running"
     else:
-        print(" > Talkingraspi is resting")
-        return "Stopped!"
-
+        logger.debug("Camera is inactive")
+        return "Inactive"
 
 if __name__ == "__main__":
-    print "Connect to http://{}:5555 to controll TalkingRaspi !!".format(get_ip_address())
+    log.configureLogger(20)
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+    logger.info("Connect to http://%s:5555 to toggle the camera", get_ip_address())
     app.run(host="0.0.0.0", port=5555, debug=False)
-

@@ -1,0 +1,42 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          rpi-surveillance
+# Required-Start:    $syslog
+# Required-Stop:     $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start RPi Surveillance server at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+
+RPI_SURVEILLANCE_PATH=/home/pi/RaspiSecurity
+RPI_SURVEILLANCE_PIDFILE=/var/run/rpi-surveillance.pid
+RPI_SURVEILLANCE_NAME=`basename $0`
+
+case "$1" in
+    start)
+        echo "Starting $RPI_SURVEILLANCE_NAME"
+        cd $RPI_SURVEILLANCE_PATH && python server.py & echo $! > $RPI_SURVEILLANCE_PIDFILE
+        ;;
+    stop)
+        echo "Stopping $RPI_SURVEILLANCE_NAME"
+        if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
+            kill $(cat $RPI_SURVEILLANCE_PIDFILE)
+            rm $RPI_SURVEILLANCE_PIDFILE
+        fi
+        ;;
+    status)
+        if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
+            echo "Running"
+        else
+            echo "Stopped"
+            exit 1
+        fi
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

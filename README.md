@@ -1,28 +1,34 @@
 # RaspiSecurity
-Home Surveillance with Raspberry with only ~100 lines of Python Code.
-For technical details check the realted [medium post](https://hackernoon.com/raspberrypi-home-surveillance-with-only-150-lines-of-python-code-2701bd0373c9). Hope you like it.
+Home Surveillance with a Raspberry Pi with only ~100 lines of Python Code, forked from https://github.com/erogol/RaspiSecurity.
+For technical details check the related [medium post](https://hackernoon.com/raspberrypi-home-surveillance-with-only-150-lines-of-python-code-2701bd0373c9). Hope you like it.
 
-# Installation to a new Raspberry2 B+
+## Differences from the original
+- Runs on a Raspberry Pi B; the script now works with OpenCV 2, which is what Wheezy has by default (no need to build OpenCV from source).
+- Includes a script to run the server as a service.
+- No longer supports Dropbox.
+- Assumes the Raspberry Pi is also an SMTP server.
 
-## Install necessary libraries 
+# Installation to a Raspberry Pi B
+
+This readme has been updated after tweaking my installation, so it may be missing some steps.
+
+## Install necessary libraries
+
 - ```sudo apt-get update```
-- ```sudo apt-get install build-essential python2.7-dev python-setuptools```
-- ```sudo su```
-- ```sh install_opencv.sh``` 
-- ```sudo easy_install pip```
-- ```sudo pip install picamera```
+- ```sudo apt-get install python-picamera python-opencv postfix```
+- Configure postfix to your liking
 
 ## Setup config files
-- Set email address to be used by the agent. It is in the source code.
-- Set your email address to be noticed for each alert
+- Set your email address to be noticed for each alert in [the config file](json.conf).
+- NOTE: The script now assumes that localhost is an SMTP server.
 
-## Run the agent
+## Run the agent manually
 - ```python server.py ```
 - Go to given URL on the terminal
-- Activate or deactivate the agent. The idea here, if you are close to your house, your phone will connect to your net before you enter the house, 
-then you can deactivate the agent to prevent wrong alert on you. You should also activate it before leaving the house. Itĺl give you some time to 
-leave the house then become active. 
+- Activate or deactivate the agent. The idea here is, if you are close to your house, your phone will connect to your net before you enter the house,
+then you can deactivate the agent to prevent an alert. You should also activate it before leaving the house. It'll give you some time to leave the house then become active.
 
-
-
-
+## Run the agent as a service
+- Copy the ```etc/init.d/rpi-surveillance``` script to ```/etc/init.d```.
+- ```sudo update-rc.d rpi-surveillance defaults```
+- NOTE: This assumes the repo is cloned into ```/home/pi``` (edit the script if you want).
