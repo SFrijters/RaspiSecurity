@@ -19,8 +19,8 @@ This readme has been updated after tweaking my installation, so it may be missin
 - Configure postfix to your liking
 
 ## Setup config files
-- Set your email address to be noticed for each alert in [the config file](json.conf).
-- NOTE: The script now assumes that localhost is an SMTP server.
+- Set your email address to be noticed for each alert in [the config file](conf.json).
+- NOTE: The script now assumes that ```127.0.0.1``` (localhost) is an SMTP server.
 
 ## Run the agent manually
 - ```python server.py ```
