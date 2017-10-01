@@ -12,7 +12,7 @@ import tempfile
 
 import log
 import logging
-logger = logging.getLogger("camera")
+logger = logging.getLogger("rpi-surveillance-camera")
 logger.addHandler(logging.NullHandler())
 
 def send_email(config):

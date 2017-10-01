@@ -10,7 +10,7 @@ logLevel = logging.DEBUG
 LOG_FORMAT_SHORT  = '%(message)s'
 LOG_FORMAT_TIME   = '%(asctime)s - %(message)s'
 LOG_FORMAT_LONG   = '%(asctime)s - pid %(process)d - %(name)s - %(levelname)s - %(message)s'
-LOG_FORMAT_SYS    = '%(name)s - %(levelname)s - %(message)s'
+LOG_FORMAT_SYS    = '%(name)s[%(process)d]: %(message)s'
 TIME_FORMAT_LONG  = '%Y-%m-%d %H:%M:%S'
 TIME_FORMAT_SHORT = '%H:%M:%S'
 

@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 import log
 import logging
-logger = logging.getLogger("server")
+logger = logging.getLogger("rpi-surveillance-server")
 logger.addHandler(logging.NullHandler())
 
 # Stop HTTP request spam
