@@ -32,3 +32,7 @@ then you can deactivate the agent to prevent an alert. You should also activate 
 - Copy the ```etc/init.d/rpi-surveillance``` script to ```/etc/init.d```.
 - ```sudo update-rc.d rpi-surveillance defaults```
 - NOTE: This assumes the repo is cloned into ```/home/pi``` (edit the script if you want).
+
+## Logwatch
+
+If you are using Logwatch, you can copy/symlink the files in ```etc/logwatch``` into ```/etc``` to add rpi-surveillance as a service to watch.
