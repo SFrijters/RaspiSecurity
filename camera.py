@@ -24,7 +24,7 @@ def send_email(config):
     import smtplib
     import glob
 
-    logger.info("Emailing to %s", config['email_to'])
+    logger.debug("Emailing to %s", config['email_to'])
     text = ""
     subject = "RPi Surveillance Security Alert %s" % datetime.datetime.now().strftime(log.TIME_FORMAT_SHORT)
 
@@ -37,7 +37,7 @@ def send_email(config):
 
     # set attachments
     files = glob.glob("/tmp/surveillance*")
-    logger.info("Number of images attached to email: %d", len(files))
+    logger.debug("Number of images attached to email: %d", len(files))
     for f in files:
         with open(f, "rb") as fil:
             part = MIMEApplication(fil.read(), Name=os.path.basename(f))
@@ -70,12 +70,12 @@ def main():
     # allow the camera to warmup, then initialize the average frame, last
     # uploaded timestamp, and frame motion counter
     warmup = config["camera_warmup_time"]
-    logger.info("Warming up the camera for %d seconds", warmup)
+    logger.debug("Warming up the camera for %d seconds", warmup)
     time.sleep(warmup)
     avg = None
     lastUploaded = datetime.datetime.now()
     motionCounter = 0
-    logger.info("Surveillance started")
+    logger.debug("Surveillance started")
 
     # capture frames from the camera
     for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -93,7 +93,7 @@ def main():
 
         # if the average frame is None, initialize it
         if avg is None:
-            logger.info("Initializing background model")
+            logger.debug("Initializing background model")
             avg = gray.copy().astype("float")
             rawCapture.truncate(0)
             continue
@@ -147,12 +147,12 @@ def main():
                     logger.info("Sending an alert email")
                     send_email(config)
 
-                    logger.info("Warming up the camera for %d seconds", warmup)
+                    logger.debug("Warming up the camera for %d seconds", warmup)
                     time.sleep(warmup)
                     avg = None
                     lastUploaded = datetime.datetime.now()
                     motionCounter = 0
-                    logger.info("Surveillance started")
+                    logger.debug("Surveillance started")
 
         # otherwise, the room is not occupied
         else:
@@ -162,4 +162,8 @@ def main():
         rawCapture.truncate(0)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logger.error(e)
+

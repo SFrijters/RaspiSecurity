@@ -21,7 +21,7 @@ def shutdown(*args):
     global proc
     logger.info("Stopping camera")
     proc.kill()
-    logger.info("Camera process id = %d killed!", proc.pid)
+    logger.debug("Camera process id = %d killed!", proc.pid)
     logger.info("Stopping server")
     os._exit(0)
 
@@ -39,7 +39,7 @@ def start_camera():
     global proc
     logger.info("Starting camera")
     proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"])
-    logger.info("Camera process id = %d", proc.pid)
+    logger.debug("Camera process id = %d", proc.pid)
     return "Start camera"
 
 @app.route("/stop", methods=['GET', 'POST'])
@@ -47,7 +47,7 @@ def stop_camera():
     global proc
     logger.info("Stopping camera")
     proc.kill()
-    logger.info("Camera process id = %d killed!", proc.pid)
+    logger.debug("Camera process id = %d killed!", proc.pid)
     return "Stop camera"
 
 @app.route("/status", methods=['GET', 'POST'])
@@ -65,7 +65,11 @@ def status_camera():
 
 if __name__ == "__main__":
     log.configureLogger(20)
-    signal.signal(signal.SIGINT, shutdown)
-    signal.signal(signal.SIGTERM, shutdown)
-    logger.info("Connect to http://%s:5555 to toggle the camera", get_ip_address())
-    app.run(host="0.0.0.0", port=5555, debug=False)
+    try:
+        signal.signal(signal.SIGINT, shutdown)
+        signal.signal(signal.SIGTERM, shutdown)
+        logger.info("Starting server")
+        logger.info("Connect to http://%s:5555 to toggle the camera", get_ip_address())
+        app.run(host="0.0.0.0", port=5555, debug=False)
+    except Exception as e:
+        logger.error(e)
