@@ -20,8 +20,9 @@ proc = None
 def shutdown(*args):
     global proc
     logger.info("Stopping camera")
-    proc.kill()
-    logger.debug("Camera process id = %d killed!", proc.pid)
+    if proc:
+        proc.kill()
+        logger.debug("Camera process id = %d killed!", proc.pid)
     logger.info("Stopping server")
     os._exit(0)
 
@@ -46,8 +47,9 @@ def start_camera():
 def stop_camera():
     global proc
     logger.info("Stopping camera")
-    proc.kill()
-    logger.debug("Camera process id = %d killed!", proc.pid)
+    if proc:
+        proc.kill()
+        logger.debug("Camera process id = %d killed!", proc.pid)
     return "Stop camera"
 
 @app.route("/status", methods=['GET', 'POST'])
