@@ -21,8 +21,12 @@ def shutdown(*args):
     global proc
     logger.info("Stopping camera")
     if proc:
-        proc.kill()
-        logger.debug("Camera process id = %d killed!", proc.pid)
+        try:
+            proc.kill()
+            logger.debug("Camera process id = %d killed!", proc.pid)
+            proc = None
+        except OSError:
+            logger.warning("Failed to kill camera process")
     logger.info("Stopping server")
     os._exit(0)
 
@@ -39,8 +43,11 @@ def hello():
 def start_camera():
     global proc
     logger.info("Starting camera")
-    proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"])
-    logger.debug("Camera process id = %d", proc.pid)
+    if proc is None:
+        proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"])
+        logger.debug("Camera process id = %d", proc.pid)
+    else:
+        logger.info("Camera was already active")
     return "Start camera"
 
 @app.route("/stop", methods=['GET', 'POST'])
@@ -48,8 +55,14 @@ def stop_camera():
     global proc
     logger.info("Stopping camera")
     if proc:
-        proc.kill()
-        logger.debug("Camera process id = %d killed!", proc.pid)
+        try:
+            proc.kill()
+            logger.debug("Camera process id = %d killed!", proc.pid)
+            proc = None
+        except OSError:
+            logger.warning("Failed to kill camera process")
+    else:
+        logger.info("Camera was already inactive")
     return "Stop camera"
 
 @app.route("/status", methods=['GET', 'POST'])

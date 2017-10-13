@@ -25,16 +25,36 @@ case "$1" in
             rm $RPI_SURVEILLANCE_PIDFILE
         fi
         ;;
+    restart)
+        # Hacky way to restart
+        status=`curl -s http://localhost:5555/status`
+        ./$0 stop
+        ./$0 start
+        if [ "$status" = Running ]; then
+            sleep 2
+            curl -s http://localhost:5555/start > /dev/null
+            exit $?
+        fi
+        ;;
+    start-camera)
+        echo "Starting $RPI_SURVEILLANCE_NAME camera"
+        curl -s http://localhost:5555/start > /dev/null
+        ;;
+    stop-camera)
+        echo "Stopping $RPI_SURVEILLANCE_NAME camera"
+        curl -s http://localhost:5555/stop > /dev/null
+        ;;
     status)
         if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
-            echo "Running"
+            status=`curl -s http://localhost:5555/status`
+            echo "Server running; camera $status"
         else
-            echo "Stopped"
+            echo "Server stopped"
             exit 1
         fi
         ;;
     *)
-        echo "Usage: $0 {start|stop|status}"
+        echo "Usage: $0 {start|stop|restart|start-camera|stop-camera|status}"
         exit 1
         ;;
 esac
