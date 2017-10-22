@@ -44,7 +44,7 @@ def start_camera():
     global proc
     logger.info("Starting camera")
     if proc is None:
-        proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"])
+        proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"], preexec_fn=lambda: os.nice(10))
         logger.debug("Camera process id = %d", proc.pid)
     else:
         logger.info("Camera was already active")
