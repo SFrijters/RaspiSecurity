@@ -17,6 +17,14 @@ logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 proc = None
 
+@app.before_first_request
+def start_up():
+    log.configureLogger(20)
+    logger.info("Starting server")
+    logger.info("Connect to http://%s:5555 to toggle the camera", get_ip_address())
+    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGTERM, shutdown)
+
 def shutdown(*args):
     global proc
     logger.info("Stopping camera")
@@ -81,10 +89,6 @@ def status_camera():
 if __name__ == "__main__":
     log.configureLogger(20)
     try:
-        signal.signal(signal.SIGINT, shutdown)
-        signal.signal(signal.SIGTERM, shutdown)
-        logger.info("Starting server")
-        logger.info("Connect to http://%s:5555 to toggle the camera", get_ip_address())
         app.run(host="0.0.0.0", port=5555, debug=False)
     except Exception as e:
         logger.error(e)
