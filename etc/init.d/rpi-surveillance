@@ -16,7 +16,7 @@ RPI_SURVEILLANCE_NAME=`basename $0`
 case "$1" in
     start)
         echo "Starting $RPI_SURVEILLANCE_NAME"
-        cd $RPI_SURVEILLANCE_PATH && python server.py & echo $! > $RPI_SURVEILLANCE_PIDFILE
+        cd $RPI_SURVEILLANCE_PATH && gunicorn server:app -b 0.0.0.0:5555 -p $RPI_SURVEILLANCE_PIDFILE -D
         ;;
     stop)
         echo "Stopping $RPI_SURVEILLANCE_NAME"

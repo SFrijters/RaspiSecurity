@@ -15,7 +15,7 @@ This readme has been updated after tweaking my installation, so it may be missin
 ## Install necessary libraries
 
 - ```sudo apt-get update```
-- ```sudo apt-get install python-picamera python-opencv postfix```
+- ```sudo apt-get install python-flask python-picamera python-opencv postfix gunicorn```
 - Configure postfix to your liking
 
 ## Setup config files
