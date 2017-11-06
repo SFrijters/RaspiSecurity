@@ -15,7 +15,18 @@ logger.addHandler(logging.NullHandler())
 # Stop HTTP request spam
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
-proc = None
+RPI_CAMERA_PID_FILE='/var/run/rpi-camera.pid'
+
+def get_camera_pid():
+    if not os.path.isfile(RPI_CAMERA_PID_FILE):
+        return None
+    with open(RPI_CAMERA_PID_FILE, 'r') as pid_file:
+        return int(pid_file.read())
+
+def set_camera_pid(pid):
+    with open(RPI_CAMERA_PID_FILE, 'w+') as pid_file:
+        pid_file.write("%d" % pid)
+
 
 @app.before_first_request
 def start_up():
@@ -26,15 +37,12 @@ def start_up():
     signal.signal(signal.SIGTERM, shutdown)
 
 def shutdown(*args):
-    global proc
     logger.info("Stopping camera")
-    if proc:
-        try:
-            proc.kill()
-            logger.debug("Camera process id = %d killed!", proc.pid)
-            proc = None
-        except OSError:
-            logger.warning("Failed to kill camera process")
+    pid = get_camera_pid()
+    if pid is not None:
+        os.kill(pid, signal.SIGTERM)
+        os.remove(RPI_CAMERA_PID_FILE)
+        logger.debug("Camera process id = %d killed!", pid)
     logger.info("Stopping server")
     os._exit(0)
 
@@ -49,10 +57,10 @@ def hello():
 
 @app.route("/start", methods=['GET', 'POST'])
 def start_camera():
-    global proc
     logger.info("Starting camera")
-    if proc is None:
+    if get_camera_pid() is None:
         proc = subprocess.Popen(["python", "camera.py", "-c", "conf.json"], preexec_fn=lambda: os.nice(10))
+        set_camera_pid(proc.pid)
         logger.debug("Camera process id = %d", proc.pid)
     else:
         logger.info("Camera was already active")
@@ -60,31 +68,25 @@ def start_camera():
 
 @app.route("/stop", methods=['GET', 'POST'])
 def stop_camera():
-    global proc
     logger.info("Stopping camera")
-    if proc:
-        try:
-            proc.kill()
-            logger.debug("Camera process id = %d killed!", proc.pid)
-            proc = None
-        except OSError:
-            logger.warning("Failed to kill camera process")
+    pid = get_camera_pid()
+    if pid is not None:
+        os.kill(pid, signal.SIGTERM)
+        os.remove(RPI_CAMERA_PID_FILE)
+        logger.debug("Camera process id = %d killed!", pid)
     else:
         logger.info("Camera was already inactive")
     return "Stop camera"
 
 @app.route("/status", methods=['GET', 'POST'])
 def status_camera():
-    global proc
-    if proc is None:
+    pid = get_camera_pid()
+    if pid is None:
         logger.debug("Camera is inactive")
         return "Inactive"
-    if proc.poll() is None:
-        logger.debug("Camera running as pid = %d", proc.pid)
-        return "Running"
     else:
-        logger.debug("Camera is inactive")
-        return "Inactive"
+        logger.debug("Camera running as pid = %d", pid)
+        return "Running"
 
 if __name__ == "__main__":
     log.configureLogger(20)
