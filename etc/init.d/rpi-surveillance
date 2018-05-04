@@ -37,26 +37,26 @@ case "$1" in
         ;;
     restart)
         # Hacky way to restart
-        status=`curl -s http://localhost:5555/status`
+        status=`curl -4 -s http://localhost:5555/status`
         ./$0 stop
         ./$0 start
         if [ "$status" = Running ]; then
             sleep 2
-            curl -s http://localhost:5555/start > /dev/null
+            curl -4 -s http://localhost:5555/start > /dev/null
             exit $?
         fi
         ;;
     start-camera)
         echo "Starting $RPI_SURVEILLANCE_NAME camera"
-        curl -s http://localhost:5555/start > /dev/null
+        curl -4 -s http://localhost:5555/start > /dev/null
         ;;
     stop-camera)
         echo "Stopping $RPI_SURVEILLANCE_NAME camera"
-        curl -s http://localhost:5555/stop > /dev/null
+        curl -4 -s http://localhost:5555/stop > /dev/null
         ;;
     status)
         if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
-            status=`curl -s http://localhost:5555/status`
+            status=`curl -4 -s http://localhost:5555/status`
             echo "Server running; camera $status"
         else
             echo "Server stopped"
