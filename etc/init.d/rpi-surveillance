@@ -11,6 +11,7 @@
 
 RPI_SURVEILLANCE_PATH=/home/pi/RaspiSecurity
 RPI_SURVEILLANCE_PIDFILE=/var/run/rpi-surveillance.pid
+RPI_CAMERA_RESTART=/var/run/rpi-camera-restart
 RPI_SURVEILLANCE_NAME=`basename $0`
 
 case "$1" in
@@ -20,6 +21,11 @@ case "$1" in
             ./$0 restart
         else
             cd $RPI_SURVEILLANCE_PATH && gunicorn server:app -b 0.0.0.0:5555 -p $RPI_SURVEILLANCE_PIDFILE -D
+        fi
+        if [ -f $RPI_CAMERA_RESTART ]; then
+            sleep 2
+            curl -4 -s http://localhost:5555/start
+            rm -f $RPI_CAMERA_RESTART
         fi
         ;;
     stop)
