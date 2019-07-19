@@ -3,7 +3,7 @@ Home Surveillance with a Raspberry Pi with only ~100 lines of Python Code, forke
 For technical details check the related [medium post](https://hackernoon.com/raspberrypi-home-surveillance-with-only-150-lines-of-python-code-2701bd0373c9). Hope you like it.
 
 ## Differences from the original
-- Runs on a Raspberry Pi B; the script now works with OpenCV 2, which is what Wheezy has by default (no need to build OpenCV from source).
+- Runs on a Raspberry Pi B; the script now works with OpenCV 3.2, which is what Buster has by default (no need to build OpenCV from source).
 - Includes a script to run the server as a service.
 - No longer supports Dropbox.
 - Assumes the Raspberry Pi is also an SMTP server.
