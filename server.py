@@ -59,7 +59,7 @@ def hello():
 def start_camera():
     logger.info("Starting camera")
     if get_camera_pid() is None:
-        proc = subprocess.Popen(["python3", "camera.py", "-c", "conf.json"], preexec_fn=lambda: os.nice(10))
+        proc = subprocess.Popen(["python3", "camera.py", "-c", "conf.json", "-v", logger.level], preexec_fn=lambda: os.nice(10))
         set_camera_pid(proc.pid)
         logger.debug("Camera process id = %d", proc.pid)
     else:
