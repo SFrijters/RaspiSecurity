@@ -58,13 +58,16 @@ def main():
 
     log.configureLogger(options.v)
 
+    logger.debug("Loading camera config file")
     with open(options.conf, 'r') as config_file:
         config = json.load(config_file)
 
     # initialize the camera and grab a reference to the raw camera capture
+    logger.debug("Initializing camera")
     camera = PiCamera()
     camera.resolution = tuple(config["resolution"])
     camera.framerate = int(config["fps"])
+    logger.debug("Initializing rawCapture")
     rawCapture = PiRGBArray(camera, size=camera.resolution)
 
     # allow the camera to warmup, then initialize the average frame, last
