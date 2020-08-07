@@ -9,55 +9,55 @@
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
 
-RPI_SURVEILLANCE_PATH=/home/pi/RaspiSecurity
-RPI_SURVEILLANCE_PIDFILE=/var/run/rpi-surveillance.pid
-RPI_CAMERA_RESTART=/root/rpi-camera-restart
-RPI_SURVEILLANCE_NAME=`basename $0`
+rpi_surveillance_path=/home/pi/RaspiSecurity
+rpi_surveillance_pidfile=/var/run/rpi-surveillance.pid
+rpi_camera_restart=/root/rpi-camera-restart
+rpi_surveillance_name=$(basename "$0")
 
 case "$1" in
     start)
-        echo "Starting $RPI_SURVEILLANCE_NAME"
-        if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
-            ./$0 restart
+        echo "Starting ${rpi_surveillance_name}"
+        if [ -f "${rpi_surveillance_pidfile}" ]; then
+            "./$0" restart
         else
-            cd $RPI_SURVEILLANCE_PATH && gunicorn server:app -b 0.0.0.0:5555 -p $RPI_SURVEILLANCE_PIDFILE -D
+            cd "${rpi_surveillance_path}" && gunicorn3 server:app -b 0.0.0.0:5555 -p "${rpi_surveillance_pidfile}" -D
         fi
-        if [ -f $RPI_CAMERA_RESTART ]; then
+        if [ -f "${rpi_camera_restart}" ]; then
             sleep 10
             curl -4 -s http://localhost:5555/start
-            rm -f $RPI_CAMERA_RESTART
+            rm -f "${rpi_camera_restart}"
         fi
         ;;
     stop)
-        echo "Stopping $RPI_SURVEILLANCE_NAME"
-        if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
-            kill $(cat $RPI_SURVEILLANCE_PIDFILE)
-            rm $RPI_SURVEILLANCE_PIDFILE
+        echo "Stopping ${rpi_surveillance_name}"
+        if [ -f "${rpi_surveillance_pidfile}" ]; then
+            kill "$(cat "${rpi_surveillance_pidfile}")"
+            rm "${rpi_surveillance_pidfile}"
         fi
         ;;
     restart)
         # Hacky way to restart
-        status=`curl -4 -s http://localhost:5555/status`
-        ./$0 stop
-        ./$0 start
-        if [ "$status" = Running ]; then
+        status=$(curl -4 -s http://localhost:5555/status)
+        "./$0" stop
+        "./$0" start
+        if [ "${status}" = Running ]; then
             sleep 2
             curl -4 -s http://localhost:5555/start > /dev/null
             exit $?
         fi
         ;;
     start-camera)
-        echo "Starting $RPI_SURVEILLANCE_NAME camera"
+        echo "Starting ${rpi_surveillance_name} camera"
         curl -4 -s http://localhost:5555/start > /dev/null
         ;;
     stop-camera)
-        echo "Stopping $RPI_SURVEILLANCE_NAME camera"
+        echo "Stopping ${rpi_surveillance_name} camera"
         curl -4 -s http://localhost:5555/stop > /dev/null
         ;;
     status)
-        if [ -f $RPI_SURVEILLANCE_PIDFILE ]; then
-            status=`curl -4 -s http://localhost:5555/status`
-            echo "Server running; camera $status"
+        if [ -f "${rpi_surveillance_pidfile}" ]; then
+            status=$(curl -4 -s http://localhost:5555/status)
+            echo "Server running; camera ${status}"
         else
             echo "Server stopped"
             exit 1
