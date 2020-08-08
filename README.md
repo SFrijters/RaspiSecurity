@@ -23,7 +23,7 @@ This readme has been updated after tweaking my installation, so it may be missin
 - NOTE: The script now assumes that ```127.0.0.1``` (localhost) is an SMTP server.
 
 ## Run the agent manually
-- ```python server.py ```
+- ```python3 server.py ```
 - Go to given URL on the terminal
 - Activate or deactivate the agent. The idea here is, if you are close to your house, your phone will connect to your net before you enter the house,
 then you can deactivate the agent to prevent an alert. You should also activate it before leaving the house. It'll give you some time to leave the house then become active.
